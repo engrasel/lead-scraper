@@ -1,0 +1,8 @@
+{
+  "name": "lead-scraper",
+  "version": "1.0.0",
+  "description": "Free Lead Scraper — Jina Reader powered, no API keys",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

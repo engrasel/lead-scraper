@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Scraper — Free Agency Lead Generator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0b0f1a;
+      --bg2: #111827;
+      --bg3: #1a2236;
+      --card: #1e293b;
+      --border: #2a3550;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --accent: #3b82f6;
+      --accent2: #60a5fa;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --radius: 10px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font-family: inherit; cursor: pointer; }
+    input { font-family: inherit; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #172554 100%);
+      padding: 40px 24px 36px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 70%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 30%, rgba(139,92,246,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      position: relative;
+    }
+    .header p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-top: 6px;
+      position: relative;
+    }
+    .header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(34,197,94,0.12);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* ── PRESETS ── */
+    .presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .preset-btn {
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text2);
+      transition: all 0.15s;
+    }
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: rgba(59,130,246,0.08);
+    }
+
+    /* ── INPUT SECTION ── */
+    .input-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .url-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .url-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      transition: border-color 0.15s;
+    }
+    .url-input-wrap:focus-within { border-color: var(--accent); }
+    .url-input-wrap svg { color: var(--text3); flex-shrink: 0; }
+    .url-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      padding: 11px 0;
+      font-size: 13px;
+      outline: none;
+    }
+    .url-input::placeholder { color: var(--text3); }
+    .btn-remove {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      color: var(--red);
+      display: flex;
+      align-items: center;
+    }
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .btn-scrape {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .btn-scrape:hover { background: #2563eb; }
+    .btn-scrape:disabled { background: var(--text3); cursor: not-allowed; }
+
+    /* ── PROGRESS ── */
+    .progress-bar {
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .progress-bar.info { background: rgba(59,130,246,0.1); color: var(--accent2); }
+    .progress-bar.success { background: rgba(34,197,94,0.1); color: var(--green); }
+    .progress-bar.error { background: rgba(239,68,68,0.1); color: var(--red); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 12px; }
+    .lead-count { font-size: 15px; font-weight: 600; }
+    .filter-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+    }
+    .filter-wrap svg { color: var(--text3); }
+    .filter-input {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      padding: 7px 0;
+      font-size: 12px;
+      outline: none;
+      width: 140px;
+    }
+    .filter-input::placeholder { color: var(--text3); }
+    .toolbar-right { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tool-btn {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.1s;
+    }
+    .tool-btn:hover { border-color: var(--accent); color: var(--accent2); }
+    .tool-btn.active { border-color: var(--accent); background: rgba(59,130,246,0.1); color: var(--accent2); }
+    .tool-btn.export { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--green); }
+    .tool-btn.danger { border-color: rgba(239,68,68,0.3); color: var(--red); }
+
+    /* ── LEAD CARDS ── */
+    .lead-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 6px;
+      transition: border-color 0.15s;
+    }
+    .lead-card:hover { border-color: var(--accent); }
+    .lead-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .lead-info { flex: 1; min-width: 0; }
+    .lead-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .lead-num {
+      background: rgba(59,130,246,0.12);
+      color: var(--accent2);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .lead-name { font-size: 14px; font-weight: 600; }
+    .lead-rating { font-size: 12px; font-weight: 600; }
+    .lead-rating.high { color: var(--green); }
+    .lead-rating.mid { color: var(--yellow); }
+    .lead-reviews { font-size: 11px; color: var(--text3); }
+    .lead-meta { display: flex; gap: 14px; margin-top: 5px; flex-wrap: wrap; }
+    .lead-meta span { font-size: 12px; color: var(--text2); }
+    .lead-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .lead-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+    }
+    .lead-btn:hover { color: var(--text); border-color: var(--text3); }
+    .lead-btn.del:hover { color: var(--red); border-color: var(--red); }
+
+    /* ── EXPANDED DETAILS ── */
+    .lead-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+    }
+    .detail-label { font-size: 11px; color: var(--text3); text-transform: capitalize; }
+    .detail-value {
+      font-size: 12px;
+      color: var(--text);
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      padding: 1px;
+      display: flex;
+      align-items: center;
+    }
+    .copy-btn.copied { color: var(--green); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 70px 20px;
+      color: var(--text3);
+    }
+    .empty svg { margin-bottom: 12px; opacity: 0.3; }
+    .empty p { font-size: 14px; }
+    .empty .sub { font-size: 12px; margin-top: 4px; }
+
+    /* ── SPINNER ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 1s linear infinite; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .lead-details { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-right { justify-content: flex-start; }
+      .header h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🕷️ Lead Scraper</h1>
+  <p>যেকোনো website URL দাও — সব agency/business lead extract করবে</p>
+  <div class="badge">✓ 100% Free — No API Keys</div>
+</div>
+
+<div class="container" id="app">
+
+  <!-- Presets -->
+  <div class="presets" id="presets"></div>
+
+  <!-- URL Input -->
+  <div class="input-card">
+    <div id="url-list"></div>
+    <div class="actions">
+      <button class="btn-add" onclick="addUrl()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        আরো URL
+      </button>
+      <button class="btn-scrape" id="btn-scrape" onclick="startScraping()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Start Scraping
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress"></div>
+
+  <!-- Toolbar -->
+  <div id="toolbar" style="display:none"></div>
+
+  <!-- Leads -->
+  <div id="leads"></div>
+
+  <!-- Empty State -->
+  <div class="empty" id="empty">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <p>কোনো lead নেই এখনো</p>
+    <p class="sub">উপরে URL দিয়ে "Start Scraping" চাপো</p>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let urls = [''];
+let allLeads = [];
+let sortField = null;
+let sortDir = 'desc';
+let filterText = '';
+let expandedCards = new Set();
+let isLoading = false;
+
+// ── PRESETS ──
+const PRESETS = [
+  { label: 'Clutch — Shopify', url: 'https://clutch.co/developers/shopify' },
+  { label: 'Clutch — Web Design', url: 'https://clutch.co/web-designers' },
+  { label: 'Clutch — SEO', url: 'https://clutch.co/seo-firms' },
+  { label: 'Clutch — E-Commerce', url: 'https://clutch.co/developers/ecommerce' },
+  { label: 'DesignRush', url: 'https://www.designrush.com/agency' },
+  { label: 'GoodFirms — Shopify', url: 'https://www.goodfirms.co/shopify-development' },
+];
+
+// ── RENDER PRESETS ──
+function renderPresets() {
+  const el = document.getElementById('presets');
+  el.innerHTML = '<span style="font-size:11px;color:var(--text3);margin-right:4px">Quick:</span>' +
+    PRESETS.map(p => `<button class="preset-btn" onclick="addPreset('${p.url}')">${p.label}</button>`).join('');
+}
+
+function addPreset(url) {
+  if (urls[0] === '') urls[0] = url;
+  else urls.push(url);
+  renderUrls();
+}
+
+// ── RENDER URLS ──
+function renderUrls() {
+  const el = document.getElementById('url-list');
+  el.innerHTML = urls.map((u, i) => `
+    <div class="url-row">
+      <div class="url-input-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <input class="url-input" type="url" value="${u}" placeholder="https://clutch.co/developers/shopify"
+          oninput="urls[${i}]=this.value" onkeydown="if(event.key==='Enter'&&!isLoading)startScraping()">
+      </div>
+      ${urls.length > 1 ? `<button class="btn-remove" onclick="removeUrl(${i})">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function addUrl() { urls.push(''); renderUrls(); }
+function removeUrl(i) { urls.splice(i, 1); renderUrls(); }
+
+// ── SCRAPING ──
+async function startScraping() {
+  const validUrls = urls.filter(u => u.trim());
+  if (!validUrls.length) { showProgress('অন্তত একটা URL দাও', 'error'); return; }
+
+  isLoading = true;
+  document.getElementById('btn-scrape').disabled = true;
+  document.getElementById('btn-scrape').innerHTML =
+    '<svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Scraping...';
+
+  const seen = new Set(allLeads.map(l => l.company_name.toLowerCase()));
+  let totalNew = 0;
+
+  for (let i = 0; i < validUrls.length; i++) {
+    const url = validUrls[i].trim();
+    showProgress(`🔍 Scraping ${i+1}/${validUrls.length}: ${url.substring(0, 60)}...`, 'info');
+
+    try {
+      const resp = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      let newCount = 0;
+      for (const lead of (data.leads || [])) {
+        const key = lead.company_name.toLowerCase().trim();
+        if (key && !seen.has(key) && key !== 'unknown') {
+          seen.add(key);
+          allLeads.push(lead);
+          newCount++;
+        }
+      }
+      totalNew += newCount;
+      showProgress(`✅ Page ${i+1}: ${data.count} leads found (${newCount} new)`, 'success');
+    } catch (err) {
+      showProgress(`⚠️ Page ${i+1} error: ${err.message.substring(0, 100)}`, 'error');
+    }
+
+    if (i < validUrls.length - 1) await sleep(2000);
+  }
+
+  showProgress(`✅ Done! ${totalNew} new leads. Total: ${allLeads.length}`, 'success');
+  isLoading = false;
+  document.getElementById('btn-scrape').disabled = false;
+  document.getElementById('btn-scrape').innerHTML =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Start Scraping';
+  renderAll();
+}
+
+function showProgress(msg, type) {
+  document.getElementById('progress').innerHTML = `<div class="progress-bar ${type}">${msg}</div>`;
+}
+
+// ── SORTING ──
+function toggleSort(field) {
+  if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortField = field; sortDir = 'desc'; }
+  renderAll();
+}
+
+// ── FILTERING ──
+function getFilteredLeads() {
+  let leads = allLeads;
+  if (filterText) {
+    const q = filterText.toLowerCase();
+    leads = leads.filter(l => Object.values(l).some(v => String(v).toLowerCase().includes(q)));
+  }
+  if (sortField) {
+    leads = [...leads].sort((a, b) => {
+      let av = a[sortField] || '', bv = b[sortField] || '';
+      if (sortField === 'rating' || sortField === 'reviews_count') {
+        av = parseFloat(av) || 0; bv = parseFloat(bv) || 0;
+      } else { av = String(av).toLowerCase(); bv = String(bv).toLowerCase(); }
+      return sortDir === 'asc' ? (av < bv ? -1 : 1) : (av > bv ? -1 : 1);
+    });
+  }
+  return leads;
+}
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  const leads = getFilteredLeads();
+  if (!leads.length) return;
+  const headers = ['company_name','rating','reviews_count','location','hourly_rate','min_project_size','employees','website','email','phone','services','focus_areas','source_url'];
+  const rows = [headers.join(','), ...leads.map(l =>
+    headers.map(h => `"${String(l[h]||'N/A').replace(/"/g,'""')}"`).join(',')
+  )];
+  const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `leads_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+function copyEmails() {
+  const emails = allLeads.filter(l => l.email && l.email !== 'N/A').map(l => l.email);
+  if (emails.length) navigator.clipboard.writeText(emails.join('\n'));
+  alert(`${emails.length} emails copied!`);
+}
+
+function clearAll() {
+  if (!confirm('সব leads মুছে ফেলবে?')) return;
+  allLeads = [];
+  expandedCards.clear();
+  document.getElementById('progress').innerHTML = '';
+  renderAll();
+}
+
+function copyField(value, btn) {
+  navigator.clipboard.writeText(value);
+  btn.textContent = '✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1200);
+}
+
+function removeLead(i) { allLeads.splice(i, 1); renderAll(); }
+function toggleExpand(i) { expandedCards.has(i) ? expandedCards.delete(i) : expandedCards.add(i); renderAll(); }
+
+// ── RENDER ──
+function renderAll() {
+  const leads = getFilteredLeads();
+  const toolbarEl = document.getElementById('toolbar');
+  const leadsEl = document.getElementById('leads');
+  const emptyEl = document.getElementById('empty');
+
+  if (!allLeads.length) {
+    toolbarEl.style.display = 'none';
+    leadsEl.innerHTML = '';
+    emptyEl.style.display = '';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  toolbarEl.style.display = '';
+
+  // Toolbar
+  const sortBtn = (label, field) => {
+    const active = sortField === field ? 'active' : '';
+    return `<button class="tool-btn ${active}" onclick="toggleSort('${field}')">${label} ↕</button>`;
+  };
+
+  toolbarEl.innerHTML = `
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <span class="lead-count">${leads.length} leads</span>
+        <div class="filter-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="filter-input" placeholder="Filter leads..." value="${filterText}"
+            oninput="filterText=this.value;renderAll()">
+        </div>
+      </div>
+      <div class="toolbar-right">
+        ${sortBtn('Rating', 'rating')}
+        ${sortBtn('Reviews', 'reviews_count')}
+        ${sortBtn('Name', 'company_name')}
+        <button class="tool-btn export" onclick="exportCSV()">⬇ CSV</button>
+        <button class="tool-btn" onclick="copyEmails()">📋 Emails</button>
+        <button class="tool-btn danger" onclick="clearAll()">🗑 Clear</button>
+      </div>
+    </div>`;
+
+  // Lead cards
+  leadsEl.innerHTML = leads.map((l, i) => {
+    const r = parseFloat(l.rating);
+    const rClass = !isNaN(r) && r >= 4.5 ? 'high' : 'mid';
+    const expanded = expandedCards.has(i);
+    const realIndex = allLeads.indexOf(l);
+
+    let details = '';
+    if (expanded) {
+      const fields = Object.entries(l).filter(([k]) => !['company_name','source_url'].includes(k));
+      details = `<div class="lead-details">
+        ${fields.filter(([,v]) => v && v !== 'N/A').map(([k, v]) => `
+          <div class="detail-row">
+            <span class="detail-label">${k.replace(/_/g, ' ')}</span>
+            <span class="detail-value">
+              ${k === 'website' && v.startsWith('http') ? `<a href="${v}" target="_blank">${v.replace(/https?:\/\/(www\.)?/,'').substring(0,30)}</a>` : v.substring(0, 40)}
+              <button class="copy-btn" onclick="copyField('${v.replace(/'/g,"\\'")}', this)">⧉</button>
+            </span>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    return `
+      <div class="lead-card">
+        <div class="lead-top">
+          <div class="lead-info">
+            <div class="lead-name-row">
+              <span class="lead-num">#${i+1}</span>
+              <span class="lead-name">${l.company_name}</span>
+              ${l.rating !== 'N/A' ? `<span class="lead-rating ${rClass}">★ ${l.rating}</span>` : ''}
+              ${l.reviews_count !== 'N/A' ? `<span class="lead-reviews">(${l.reviews_count} reviews)</span>` : ''}
+            </div>
+            <div class="lead-meta">
+              ${l.location !== 'N/A' ? `<span>📍 ${l.location}</span>` : ''}
+              ${l.hourly_rate !== 'N/A' ? `<span>💰 ${l.hourly_rate}</span>` : ''}
+              ${l.employees !== 'N/A' ? `<span>👥 ${l.employees}</span>` : ''}
+              ${l.email !== 'N/A' ? `<span>✉ ${l.email}</span>` : ''}
+            </div>
+          </div>
+          <div class="lead-actions">
+            <button class="lead-btn" onclick="toggleExpand(${i})">${expanded ? '▲' : '▼'}</button>
+            <button class="lead-btn del" onclick="removeLead(${realIndex})">✕</button>
+          </div>
+        </div>
+        ${details}
+      </div>`;
+  }).join('');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── INIT ──
+renderPresets();
+renderUrls();
+</script>
+
+</body>
+</html>
